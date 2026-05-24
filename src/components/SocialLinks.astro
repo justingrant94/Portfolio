@@ -1,0 +1,33 @@
+---
+import PlatformIcon from './PlatformIcon.astro';
+
+interface LinkItem {
+	label: string;
+	value: string;
+	href: string;
+	external: boolean;
+	icon: 'github' | 'linkedin' | 'mail';
+}
+
+interface Props {
+	links: LinkItem[];
+	variant?: 'hero' | 'footer';
+}
+
+const { links, variant = 'hero' } = Astro.props;
+---
+
+<div class={`social-links social-links--${variant}`} aria-label="Social links">
+	{links.map((link) => (
+		<a
+			class="social-link"
+			href={link.href}
+			target={link.external ? '_blank' : undefined}
+			rel={link.external ? 'noreferrer' : undefined}
+			aria-label={link.label}
+		>
+			<PlatformIcon name={link.icon} title={link.label} />
+			{variant === 'hero' && <span class="social-link__label">{link.label}</span>}
+		</a>
+	))}
+</div>

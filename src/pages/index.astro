@@ -1,0 +1,362 @@
+---
+import BootSequence from '../components/BootSequence.astro';
+import LogoMark from '../components/LogoMark.astro';
+import ModeToggle from '../components/ModeToggle.astro';
+import PlatformIcon from '../components/PlatformIcon.astro';
+import SocialLinks from '../components/SocialLinks.astro';
+import {
+	achievements,
+	aboutCards,
+	aboutParagraphs,
+	contactLinks,
+	experiences,
+	featuredProject,
+	heroStats,
+	impactStats,
+	siteMeta,
+	skillGroups,
+} from '../data/site';
+import Layout from '../layouts/Layout.astro';
+
+const year = new Date().getFullYear();
+---
+
+<Layout title={siteMeta.title} description={siteMeta.description}>
+	<a class="skip-link" href="#main-content">Skip to content</a>
+	<BootSequence />
+
+	<header class="site-header">
+		<div class="shell">
+			<nav class="nav" aria-label="Primary">
+				<LogoMark href="#hero" label="Justin Grant home" />
+				<ul class="nav__links">
+					{siteMeta.navLinks.map((link) => (
+						<li><a href={link.href}>{link.label}</a></li>
+					))}
+				</ul>
+				<div class="nav__controls">
+					<ModeToggle />
+				</div>
+			</nav>
+		</div>
+	</header>
+
+	<main id="main-content">
+		<section class="hero section" id="hero">
+			<div class="shell hero__grid">
+				<div>
+					<p class="hero__eyebrow" data-reveal>{siteMeta.kicker}</p>
+					<h1 class="hero__title" data-reveal>
+						Justin <span>Grant</span>
+					</h1>
+					<p class="hero__lede" data-reveal>{siteMeta.subtitle}</p>
+					<p class="hero__body" data-reveal>{siteMeta.heroBody}</p>
+					<div class="hero__actions" data-reveal>
+						<a class="button button--primary" href="#projects">Explore projects</a>
+						<a class="button" href="#contact">Start a conversation</a>
+					</div>
+					<div data-reveal>
+						<SocialLinks links={contactLinks} variant="hero" />
+					</div>
+				</div>
+
+				<aside class="hero__panel surface" data-reveal>
+					<p class="hero__panel-label">Current focus</p>
+					<ul class="hero__focus-list">
+						{siteMeta.focusAreas.map((area) => <li>{area}</li>)}
+					</ul>
+					<p class="hero__availability">
+						{siteMeta.availability}<br />
+						{siteMeta.location}
+					</p>
+				</aside>
+			</div>
+
+			<div class="shell hero__stats" data-reveal>
+				{heroStats.map((stat) => (
+					<div class="hero-stat surface">
+						<span class="hero-stat__label">{stat.label}</span>
+						<span class="hero-stat__value">{stat.value}</span>
+					</div>
+				))}
+			</div>
+		</section>
+
+		<section class="impact-band" aria-label="Impact highlights">
+			<div class="shell impact-grid">
+				{impactStats.map((stat) => (
+					<div class="impact-card" data-reveal>
+						<span class="impact-card__value" data-count={stat.count} data-suffix={stat.suffix}>
+							{stat.count}{stat.suffix}
+						</span>
+						<span class="impact-card__label">{stat.label}</span>
+					</div>
+				))}
+			</div>
+		</section>
+
+		<section class="section" id="about">
+			<div class="shell">
+				<div class="section__heading" data-reveal>
+					<p class="section__eyebrow">01 / About</p>
+					<h2 class="section__title">Full-stack delivery with a <strong>backend edge</strong>.</h2>
+				</div>
+
+				<div class="about__grid">
+					<div class="about__copy surface" data-reveal>
+						{aboutParagraphs.map((paragraph) => <p>{paragraph}</p>)}
+					</div>
+
+					<div class="about__cards">
+						{aboutCards.map((card) => (
+							<div class="metric-card" data-reveal>
+								<p class="metric-card__value">{card.value}</p>
+								<p class="metric-card__label">{card.label}</p>
+							</div>
+						))}
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="section" id="skills">
+			<div class="shell">
+				<div class="section__heading" data-reveal>
+					<p class="section__eyebrow">02 / Skills</p>
+					<h2 class="section__title">Technical strengths across delivery, data, and <strong>workflow design</strong>.</h2>
+				</div>
+
+				<div class="skills__grid">
+					{skillGroups.map((group) => (
+						<article class="skill-card surface" data-reveal>
+							<p class="skill-card__title">{group.title}</p>
+							<div class="skill-card__rows">
+								{group.items.map((item) => (
+									<div class="skill-row" data-reveal style={`--level:${item.level}%`}>
+										<span class="skill-row__name">{item.name}</span>
+										<div class="skill-meter">
+											<span class="skill-meter__fill"></span>
+										</div>
+										<span class="skill-row__value">{item.level}%</span>
+									</div>
+								))}
+							</div>
+						</article>
+					))}
+				</div>
+			</div>
+		</section>
+
+		<section class="section" id="experience">
+			<div class="shell">
+				<div class="section__heading" data-reveal>
+					<p class="section__eyebrow">03 / Experience</p>
+					<h2 class="section__title">Shipped product work, operational range, and <strong>stakeholder fluency</strong>.</h2>
+				</div>
+
+				<div class="experience__list">
+					{experiences.map((experience) => (
+						<article class="experience__item surface" data-reveal>
+							<span class="experience__status">{experience.status}</span>
+							<p class="experience__company">{experience.company}</p>
+							<h3 class="experience__role">{experience.role}</h3>
+							<p class="experience__dates">{experience.dates}</p>
+							<ul class="experience__bullets">
+								{experience.bullets.map((bullet) => <li>{bullet}</li>)}
+							</ul>
+						</article>
+					))}
+				</div>
+			</div>
+		</section>
+
+		<section class="section" id="projects">
+			<div class="shell">
+				<div class="section__heading" data-reveal>
+					<p class="section__eyebrow">04 / Projects</p>
+					<h2 class="section__title">One featured build, presented like a <strong>real case study</strong>.</h2>
+				</div>
+
+				<div class="projects__grid">
+					<article class="project-card surface" data-reveal>
+						<p class="project-card__eyebrow">{featuredProject.label}</p>
+						<h3 class="project-card__title">{featuredProject.title}</h3>
+						<p class="project-card__summary">{featuredProject.summary}</p>
+						<ul class="project-card__highlights">
+							{featuredProject.highlights.map((highlight) => <li>{highlight}</li>)}
+						</ul>
+						<div class="project-card__tags">
+							{featuredProject.tags.map((tag) => <span class="tag">{tag}</span>)}
+						</div>
+						<div class="project-card__actions">
+							{featuredProject.links.map((link) => (
+								<a
+									class={`button ${link.external ? 'button--primary' : ''}`}
+									href={link.href}
+									target={link.external ? '_blank' : undefined}
+									rel={link.external ? 'noreferrer' : undefined}
+								>
+									{link.icon && <PlatformIcon name={link.icon} title={link.label} />}
+									{link.label}
+								</a>
+							))}
+						</div>
+						<p class="project-card__status">{featuredProject.status}</p>
+					</article>
+
+					<aside class="project-placeholder surface" data-reveal>
+						<p class="project-card__eyebrow">Pipeline</p>
+						<h3 class="project-placeholder__title">More projects can drop in without redesigning the page.</h3>
+						<p class="project-placeholder__body">{featuredProject.placeholder}</p>
+						<p class="project-placeholder__status">Additional case studies will slot into this system once the next build narratives are ready.</p>
+					</aside>
+				</div>
+			</div>
+		</section>
+
+		<section class="section" id="achievements">
+			<div class="shell">
+				<div class="section__heading" data-reveal>
+					<p class="section__eyebrow">05 / Achievements</p>
+					<h2 class="section__title">Recent learning, credentials, and <strong>technical curiosity</strong>.</h2>
+				</div>
+
+				<div class="achievements__grid">
+					{achievements.map((achievement) => (
+						<article class="achievement-card surface" data-reveal>
+							<p class="achievement-card__issuer">{achievement.issuer}</p>
+							<h3 class="achievement-card__name">{achievement.name}</h3>
+							<p class="achievement-card__year">{achievement.year}</p>
+						</article>
+					))}
+				</div>
+			</div>
+		</section>
+
+		<section class="section" id="contact">
+			<div class="shell">
+				<div class="section__heading" data-reveal>
+					<p class="section__eyebrow">06 / Contact</p>
+					<h2 class="section__title">A clean professional front, with a <strong>retro switch</strong> when it earns attention.</h2>
+				</div>
+
+				<div class="contact__grid">
+					<div class="contact__copy surface" data-reveal>
+						<h3 class="contact__title">Open to new roles, interesting builds, and product conversations.</h3>
+						<p class="contact__body">
+							Based in London and happy to discuss remote or hybrid opportunities. If you want the short version: I like shipping useful systems, cleaning up complexity, and making interfaces feel considered rather than accidental.
+						</p>
+						<a class="button button--primary" href="mailto:justingrant373@gmail.com">
+							<PlatformIcon name="mail" title="Email" />
+							Email Justin
+						</a>
+					</div>
+
+					<div class="contact__panel surface" data-reveal>
+						<ul class="contact__list">
+							{contactLinks.map((link) => (
+								<li>
+									<a
+										class="contact-link"
+										href={link.href}
+										target={link.external ? '_blank' : undefined}
+										rel={link.external ? 'noreferrer' : undefined}
+									>
+											<span class="contact-link__main">
+												<span class="contact-link__icon">
+													<PlatformIcon name={link.icon} title={link.label} />
+												</span>
+												<span class="contact-link__text">
+													<span class="contact-link__label">{link.label}</span>
+													<span class="contact-link__value">{link.value}</span>
+												</span>
+											</span>
+											<span class="contact-link__arrow" aria-hidden="true">↗</span>
+									</a>
+								</li>
+							))}
+						</ul>
+					</div>
+				</div>
+			</div>
+		</section>
+	</main>
+
+	<footer class="footer">
+		<div class="shell footer__inner">
+			<div class="footer__meta">
+				<span>Justin Grant // Software Engineer</span>
+				<span>London // {year}</span>
+			</div>
+			<SocialLinks links={contactLinks} variant="footer" />
+		</div>
+	</footer>
+
+	<script>
+		const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		const revealElements = Array.from(document.querySelectorAll('[data-reveal]'));
+		const counters = Array.from(document.querySelectorAll('[data-count]'));
+
+		const animateCounter = (element) => {
+			const target = Number(element.dataset.count || '0');
+			const suffix = element.dataset.suffix || '';
+
+			if (reduceMotion) {
+				element.textContent = `${target}${suffix}`;
+				return;
+			}
+
+			element.textContent = `0${suffix}`;
+			const duration = 1200;
+			const start = performance.now();
+
+			const step = (timestamp) => {
+				const progress = Math.min((timestamp - start) / duration, 1);
+				const value = Math.round(target * progress);
+				element.textContent = `${value}${suffix}`;
+				if (progress < 1) {
+					window.requestAnimationFrame(step);
+				}
+			};
+
+			window.requestAnimationFrame(step);
+		};
+
+		if (reduceMotion) {
+			revealElements.forEach((element) => element.classList.add('is-visible'));
+			counters.forEach((counter) => animateCounter(counter));
+		} else {
+			const observer = new IntersectionObserver(
+				(entries, targetObserver) => {
+					entries.forEach((entry) => {
+						if (!entry.isIntersecting) {
+							return;
+						}
+
+						entry.target.classList.add('is-visible');
+						targetObserver.unobserve(entry.target);
+					});
+				},
+				{ threshold: 0.18 },
+			);
+
+			revealElements.forEach((element) => observer.observe(element));
+
+			const counterObserver = new IntersectionObserver(
+				(entries, targetObserver) => {
+					entries.forEach((entry) => {
+						if (!entry.isIntersecting) {
+							return;
+						}
+
+						animateCounter(entry.target);
+						targetObserver.unobserve(entry.target);
+					});
+				},
+				{ threshold: 0.45 },
+			);
+
+			counters.forEach((counter) => counterObserver.observe(counter));
+		}
+	</script>
+</Layout>

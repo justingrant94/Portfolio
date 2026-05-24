@@ -1,0 +1,123 @@
+<div class="boot-overlay" id="boot-sequence" hidden aria-hidden="true">
+	<div class="boot-overlay__panel" role="dialog" aria-label="Retro boot sequence">
+		<p class="boot-overlay__heading">JG/OS boot sequence</p>
+		<div class="boot-overlay__output" id="boot-output"></div>
+		<p class="boot-overlay__meta">Press any key or click to continue<span class="boot-overlay__cursor"></span></p>
+	</div>
+</div>
+
+<script>
+	const modeChangeEvent = 'portfolio:modechange';
+	const bootStorageKey = 'jg-retro-boot-played';
+	const overlay = document.getElementById('boot-sequence');
+	const output = document.getElementById('boot-output');
+	const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+	const bootLines = [
+		'Initialising JG/OS v1.0',
+		'Loading portfolio shell.............. OK',
+		'Checking clean light mode........... OK',
+		'Checking clean dark mode............ OK',
+		'Activating CRT overlay.............. OK',
+		'Linking featured case study......... READY',
+		'Opening system......................',
+	];
+
+	let active = false;
+	let timeouts = [];
+
+	const clearTimers = () => {
+		timeouts.forEach((timer) => window.clearTimeout(timer));
+		timeouts = [];
+	};
+
+	const hideOverlay = (markAsPlayed) => {
+		if (!overlay) {
+			return;
+		}
+
+		clearTimers();
+		active = false;
+		if (markAsPlayed) {
+			window.localStorage.setItem(bootStorageKey, 'true');
+		}
+
+		overlay.classList.remove('is-visible');
+		overlay.setAttribute('aria-hidden', 'true');
+		const hideTimer = window.setTimeout(() => {
+			overlay.hidden = true;
+		}, 240);
+		timeouts.push(hideTimer);
+	};
+
+	const finishBoot = () => {
+		if (!output) {
+			return;
+		}
+
+		output.innerHTML += '<div>System online. Welcome back.</div>';
+		const exitTimer = window.setTimeout(() => hideOverlay(true), 450);
+		timeouts.push(exitTimer);
+	};
+
+	const playBoot = () => {
+		if (!overlay || !output || active) {
+			return;
+		}
+
+		active = true;
+		output.innerHTML = '';
+		overlay.hidden = false;
+		overlay.setAttribute('aria-hidden', 'false');
+		requestAnimationFrame(() => overlay.classList.add('is-visible'));
+
+		bootLines.forEach((line, index) => {
+			const timer = window.setTimeout(() => {
+				if (!active || !output) {
+					return;
+				}
+
+				output.innerHTML += `<div>${line}</div>`;
+				if (index === bootLines.length - 1) {
+					finishBoot();
+				}
+			}, index * 180);
+
+			timeouts.push(timer);
+		});
+	};
+
+	const maybePlayBoot = (mode) => {
+		if (!overlay) {
+			return;
+		}
+
+		if (mode !== 'retro') {
+			hideOverlay(false);
+			return;
+		}
+
+		if (prefersReducedMotion.matches || window.localStorage.getItem(bootStorageKey)) {
+			overlay.hidden = true;
+			overlay.classList.remove('is-visible');
+			return;
+		}
+
+		playBoot();
+	};
+
+	const skipBoot = () => {
+		if (!active) {
+			return;
+		}
+
+		hideOverlay(true);
+	};
+
+	document.addEventListener('keydown', skipBoot);
+	document.addEventListener('pointerdown', skipBoot);
+	window.addEventListener(modeChangeEvent, (event) => {
+		maybePlayBoot(event.detail.mode);
+	});
+
+	maybePlayBoot(document.documentElement.dataset.mode || 'clean-light');
+</script>

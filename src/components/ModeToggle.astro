@@ -1,0 +1,72 @@
+---
+const modes = [
+	{ value: 'clean-light', label: 'Light', detail: 'Clean' },
+	{ value: 'clean-dark', label: 'Dark', detail: 'Clean' },
+	{ value: 'retro', label: 'Retro', detail: 'CRT' },
+];
+---
+
+<div class="mode-toggle" role="group" aria-label="Display mode">
+	{modes.map((mode) => (
+		<button
+			type="button"
+			class="mode-toggle__button"
+			data-mode-target={mode.value}
+			aria-pressed={mode.value === 'clean-light' ? 'true' : 'false'}
+		>
+			<span class="mode-toggle__detail">{mode.detail}</span>
+			<span class="mode-toggle__label">{mode.label}</span>
+		</button>
+	))}
+</div>
+
+<script>
+	const storageKey = 'jg-mode';
+	const modes = ['clean-light', 'clean-dark', 'retro'];
+	const iconMap = {
+		'clean-light': '/favicon-light.svg',
+		'clean-dark': '/favicon-dark.svg',
+		retro: '/favicon-dark.svg',
+	};
+	const colorMap = {
+		'clean-light': '#f6f2eb',
+		'clean-dark': '#111418',
+		retro: '#050905',
+	};
+	const root = document.documentElement;
+	const buttons = Array.from(document.querySelectorAll('[data-mode-target]'));
+	const favicon = document.getElementById('dynamic-favicon');
+	const themeColor = document.querySelector('meta[name="theme-color"]');
+
+	const applyMode = (mode) => {
+		if (!modes.includes(mode)) {
+			return;
+		}
+
+		root.dataset.mode = mode;
+		window.localStorage.setItem(storageKey, mode);
+		if (favicon) {
+			favicon.setAttribute('href', iconMap[mode]);
+		}
+		if (themeColor) {
+			themeColor.setAttribute('content', colorMap[mode]);
+		}
+
+		buttons.forEach((button) => {
+			button.setAttribute(
+				'aria-pressed',
+				button.dataset.modeTarget === mode ? 'true' : 'false',
+			);
+		});
+
+		window.dispatchEvent(new CustomEvent('portfolio:modechange', { detail: { mode } }));
+	};
+
+	buttons.forEach((button) => {
+		button.addEventListener('click', () => {
+			applyMode(button.dataset.modeTarget || 'clean-light');
+		});
+	});
+
+	applyMode(root.dataset.mode || 'clean-light');
+</script>

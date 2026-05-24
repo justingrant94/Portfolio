@@ -1,0 +1,19 @@
+---
+interface Props {
+	href?: string;
+	label?: string;
+}
+
+const { href = '#hero', label = 'Justin Grant home' } = Astro.props;
+---
+
+<a class="brand" href={href} aria-label={label}>
+	<span class="brand__mark" aria-hidden="true">
+		<span class="brand__glyph brand__glyph--muted">J</span>
+		<span class="brand__glyph brand__glyph--bright">G</span>
+	</span>
+	<span class="brand__lockup">
+		<span class="brand__name">Justin Grant</span>
+		<span class="brand__role">Software Engineer</span>
+	</span>
+</a>

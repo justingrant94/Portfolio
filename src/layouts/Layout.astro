@@ -1,0 +1,73 @@
+---
+import '../styles/global.css';
+
+interface Props {
+	title?: string;
+	description?: string;
+}
+
+const {
+	title = 'Justin Grant // Software Engineer',
+	description = 'London-based software engineer building product-focused full-stack systems, data workflows, and AI-assisted tooling.',
+} = Astro.props;
+
+const themeInit = `
+	(() => {
+		const storageKey = 'jg-mode';
+		const defaultMode = 'clean-light';
+		const modes = new Set(['clean-light', 'clean-dark', 'retro']);
+		const iconMap = {
+			'clean-light': '/favicon-light.svg',
+			'clean-dark': '/favicon-dark.svg',
+			retro: '/favicon-dark.svg',
+		};
+		const colorMap = {
+			'clean-light': '#f6f2eb',
+			'clean-dark': '#111418',
+			retro: '#050905',
+		};
+		const stored = window.localStorage.getItem(storageKey);
+		const mode = stored && modes.has(stored) ? stored : defaultMode;
+		const root = document.documentElement;
+		root.classList.add('js');
+		root.dataset.mode = mode;
+		const favicon = document.getElementById('dynamic-favicon');
+		if (favicon) {
+			favicon.setAttribute('href', iconMap[mode]);
+		}
+		const themeColor = document.querySelector('meta[name="theme-color"]');
+		if (themeColor) {
+			themeColor.setAttribute('content', colorMap[mode]);
+		}
+	})();
+`;
+---
+
+<!doctype html>
+<html lang="en" data-mode="clean-light">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="generator" content={Astro.generator} />
+		<meta name="description" content={description} />
+		<meta name="theme-color" content="#f6f2eb" />
+		<meta property="og:type" content="website" />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content={title} />
+		<meta name="twitter:description" content={description} />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Press+Start+2P&family=Space+Grotesk:wght@500;700&family=VT323&display=swap"
+			rel="stylesheet"
+		/>
+		<link id="dynamic-favicon" rel="icon" type="image/svg+xml" href="/favicon-light.svg" />
+		<title>{title}</title>
+		<script is:inline>{themeInit}</script>
+	</head>
+	<body>
+		<slot />
+	</body>
+</html>
