@@ -1,26 +1,74 @@
 ---
 const modes = [
-	{ value: 'clean-light', label: 'Light', detail: 'Clean' },
-	{ value: 'clean-dark', label: 'Dark', detail: 'Clean' },
-	{ value: 'retro', label: 'Retro', detail: 'CRT' },
+	{
+		value: 'clean-light',
+		label: 'Clean Light',
+		description: 'Bright neutral default',
+	},
+	{
+		value: 'clean-dark',
+		label: 'Clean Dark',
+		description: 'Dark neutral default',
+	},
+	{
+		value: 'retro',
+		label: 'Retro',
+		description: 'CRT terminal treatment',
+	},
 ];
+
+const defaultMode = 'clean-light';
+const panelId = 'theme-picker-panel';
 ---
 
-<div class="mode-toggle" role="group" aria-label="Display mode">
-	{modes.map((mode) => (
-		<button
-			type="button"
-			class="mode-toggle__button"
-			data-mode-target={mode.value}
-			aria-pressed={mode.value === 'clean-light' ? 'true' : 'false'}
-		>
-			<span class="mode-toggle__detail">{mode.detail}</span>
-			<span class="mode-toggle__label">{mode.label}</span>
-		</button>
-	))}
+<div class="mode-toggle" data-mode-picker data-open="false">
+	<button
+		type="button"
+		class="mode-toggle__trigger"
+		data-mode-trigger
+		aria-haspopup="true"
+		aria-expanded="false"
+		aria-controls={panelId}
+		aria-label="Theme, current selection: Clean Light"
+	>
+		<span class="mode-toggle__trigger-copy">
+			<span class="mode-toggle__eyebrow">Theme</span>
+			<span class="mode-toggle__current" data-mode-current>Clean Light</span>
+		</span>
+		<span class="mode-toggle__chevron" aria-hidden="true"></span>
+	</button>
+
+	<div class="mode-toggle__panel" id={panelId} data-mode-panel hidden>
+		<fieldset class="mode-toggle__fieldset">
+			<legend class="sr-only">Choose display theme</legend>
+			{modes.map((mode) => (
+				<label class="mode-toggle__option" data-mode-option data-selected="false">
+					<input
+						class="mode-toggle__input sr-only"
+						type="radio"
+						name="display-theme"
+						value={mode.value}
+						data-mode-input
+						data-mode-label={mode.label}
+						data-mode-description={mode.description}
+						checked={mode.value === defaultMode}
+					/>
+					<span class="mode-toggle__option-main">
+						<span class="mode-toggle__option-title">{mode.label}</span>
+						<span class="mode-toggle__option-description">{mode.description}</span>
+					</span>
+					<span class="mode-toggle__option-indicator" aria-hidden="true">
+						<span class="mode-toggle__option-dot"></span>
+						<span class="mode-toggle__option-tag">Current</span>
+					</span>
+				</label>
+			))}
+		</fieldset>
+	</div>
 </div>
 
-<script>
+
+<script is:inline>
 	const storageKey = 'jg-mode';
 	const modes = ['clean-light', 'clean-dark', 'retro'];
 	const iconMap = {
@@ -33,15 +81,15 @@ const modes = [
 		'clean-dark': '#111418',
 		retro: '#050905',
 	};
-	const root = document.documentElement;
-	const buttons = Array.from(document.querySelectorAll('[data-mode-target]'));
-	const favicon = document.getElementById('dynamic-favicon');
-	const themeColor = document.querySelector('meta[name="theme-color"]');
-
-	const applyMode = (mode) => {
+	const syncDocumentTheme = (mode) => {
 		if (!modes.includes(mode)) {
 			return;
 		}
+
+		const root = document.documentElement;
+		const previousMode = root.dataset.mode;
+		const favicon = document.getElementById('dynamic-favicon');
+		const themeColor = document.querySelector('meta[name="theme-color"]');
 
 		root.dataset.mode = mode;
 		window.localStorage.setItem(storageKey, mode);
@@ -52,21 +100,117 @@ const modes = [
 			themeColor.setAttribute('content', colorMap[mode]);
 		}
 
-		buttons.forEach((button) => {
-			button.setAttribute(
-				'aria-pressed',
-				button.dataset.modeTarget === mode ? 'true' : 'false',
-			);
-		});
-
-		window.dispatchEvent(new CustomEvent('portfolio:modechange', { detail: { mode } }));
+		if (previousMode !== mode) {
+			window.dispatchEvent(new CustomEvent('portfolio:modechange', { detail: { mode } }));
+		}
 	};
 
-	buttons.forEach((button) => {
-		button.addEventListener('click', () => {
-			applyMode(button.dataset.modeTarget || 'clean-light');
+	const updatePickerUI = (picker, mode) => {
+		const trigger = picker.querySelector('[data-mode-trigger]');
+		const current = picker.querySelector('[data-mode-current]');
+		const inputs = Array.from(picker.querySelectorAll('[data-mode-input]'));
+
+		inputs.forEach((input) => {
+			const selected = input.value === mode;
+			input.checked = selected;
+			input.closest('[data-mode-option]')?.setAttribute('data-selected', selected ? 'true' : 'false');
+
+			if (selected) {
+				const label = input.dataset.modeLabel || input.value;
+				if (current) {
+					current.textContent = label;
+				}
+				if (trigger) {
+					trigger.setAttribute('aria-label', `Theme, current selection: ${label}`);
+				}
+			}
+		});
+	};
+
+	const closePicker = (picker, restoreFocus = false) => {
+		const panel = picker.querySelector('[data-mode-panel]');
+		const trigger = picker.querySelector('[data-mode-trigger]');
+
+		picker.dataset.open = 'false';
+		if (panel) {
+			panel.hidden = true;
+		}
+		if (trigger) {
+			trigger.setAttribute('aria-expanded', 'false');
+			if (restoreFocus) {
+				trigger.focus();
+			}
+		}
+	};
+
+	const openPicker = (picker) => {
+		const panel = picker.querySelector('[data-mode-panel]');
+		const trigger = picker.querySelector('[data-mode-trigger]');
+		const inputs = Array.from(picker.querySelectorAll('[data-mode-input]'));
+
+		picker.dataset.open = 'true';
+		if (panel) {
+			panel.hidden = false;
+		}
+		if (trigger) {
+			trigger.setAttribute('aria-expanded', 'true');
+		}
+
+		window.requestAnimationFrame(() => {
+			(inputs.find((input) => input.checked) || inputs[0])?.focus();
+		});
+	};
+
+	document.querySelectorAll('[data-mode-picker]').forEach((picker) => {
+		const trigger = picker.querySelector('[data-mode-trigger]');
+		const inputs = Array.from(picker.querySelectorAll('[data-mode-input]'));
+		const initialMode = document.documentElement.dataset.mode || 'clean-light';
+
+		if (!trigger || inputs.length === 0) {
+			return;
+		}
+
+		updatePickerUI(picker, initialMode);
+
+		trigger.addEventListener('click', () => {
+			if (picker.dataset.open === 'true') {
+				closePicker(picker);
+				return;
+			}
+
+			openPicker(picker);
+		});
+
+		trigger.addEventListener('keydown', (event) => {
+			if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+				event.preventDefault();
+				openPicker(picker);
+			}
+		});
+
+		inputs.forEach((input) => {
+			input.addEventListener('change', () => {
+				if (!input.checked) {
+					return;
+				}
+
+				syncDocumentTheme(input.value);
+				updatePickerUI(picker, input.value);
+				closePicker(picker, true);
+			});
+		});
+
+		document.addEventListener('pointerdown', (event) => {
+			if (!picker.contains(event.target)) {
+				closePicker(picker);
+			}
+		});
+
+		picker.addEventListener('keydown', (event) => {
+			if (event.key === 'Escape') {
+				event.preventDefault();
+				closePicker(picker, true);
+			}
 		});
 	});
-
-	applyMode(root.dataset.mode || 'clean-light');
 </script>

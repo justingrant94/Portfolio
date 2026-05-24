@@ -65,7 +65,7 @@ const themeInit = `
 		/>
 		<link id="dynamic-favicon" rel="icon" type="image/svg+xml" href="/favicon-light.svg" />
 		<title>{title}</title>
-		<script is:inline>{themeInit}</script>
+		<script is:inline set:html={themeInit}></script>
 	</head>
 	<body>
 		<slot />
